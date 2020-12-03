@@ -1,6 +1,5 @@
 set -e
-#git clone --depth=1 https://github.com/openjdk/jdk jdk
-git clone --depth=1 $HOME/src/jdk/jdk jdk
+git clone --depth=1 https://github.com/openjdk/jdk jdk
 mkdir src
 cp -r jdk/src/java.compiler src
 cp -r jdk/src/jdk.compiler src
