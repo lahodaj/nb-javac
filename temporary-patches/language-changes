@@ -1,0 +1,257 @@
+# HG changeset patch
+# Parent  508eed2039153e033b5ddaa5b9a5a1d85a825d31
+
+diff -r 508eed203915 java.compiler/share/classes/javax/lang/model/util/ElementScanner14.java
+--- a/java.compiler/share/classes/javax/lang/model/util/ElementScanner14.java	Thu Nov 19 15:06:28 2020 +0100
++++ b/java.compiler/share/classes/javax/lang/model/util/ElementScanner14.java	Thu Nov 19 15:32:41 2020 +0100
+@@ -128,7 +128,7 @@
+ 
+     private List<? extends Element> createScanningList(Parameterizable element,
+                                                        List<? extends Element> toBeScanned) {
+-        var typeParameters = element.getTypeParameters();
++        List<? extends TypeParameterElement> typeParameters = element.getTypeParameters();
+         if (typeParameters.isEmpty()) {
+             return toBeScanned;
+         } else {
+diff -r 508eed203915 java.compiler/share/classes/javax/tools/StandardJavaFileManager.java
+--- a/java.compiler/share/classes/javax/tools/StandardJavaFileManager.java	Thu Nov 19 15:06:28 2020 +0100
++++ b/java.compiler/share/classes/javax/tools/StandardJavaFileManager.java	Thu Nov 19 15:32:41 2020 +0100
+@@ -479,8 +479,8 @@
+     default void setPathFactory(PathFactory f) { }
+ 
+ 
+-    private static Iterable<Path> asPaths(final Iterable<? extends File> files) {
+-        return () -> new Iterator<>() {
++    /*private */static Iterable<Path> asPaths(final Iterable<? extends File> files) {
++        return () -> new Iterator<Path>() {
+             final Iterator<? extends File> iter = files.iterator();
+ 
+             @Override
+@@ -495,8 +495,8 @@
+         };
+     }
+ 
+-    private static Iterable<File> asFiles(final Iterable<? extends Path> paths) {
+-        return () -> new Iterator<>() {
++    /*private */static Iterable<File> asFiles(final Iterable<? extends Path> paths) {
++        return () -> new Iterator<File>() {
+             final Iterator<? extends Path> iter = paths.iterator();
+ 
+             @Override
+@@ -516,7 +516,7 @@
+         };
+     }
+ 
+-    private static <T> Collection<T> asCollection(Iterable<T> iterable) {
++    /*private */ static <T> Collection<T> asCollection(Iterable<T> iterable) {
+         if (iterable instanceof Collection) {
+             return (Collection<T>) iterable;
+         }
+diff -r 508eed203915 jdk.compiler/share/classes/com/sun/source/util/DocTreePath.java
+--- a/jdk.compiler/share/classes/com/sun/source/util/DocTreePath.java	Thu Nov 19 15:06:28 2020 +0100
++++ b/jdk.compiler/share/classes/com/sun/source/util/DocTreePath.java	Thu Nov 19 15:32:41 2020 +0100
+@@ -155,7 +155,7 @@
+ 
+     @Override
+     public Iterator<DocTree> iterator() {
+-        return new Iterator<>() {
++        return new Iterator<DocTree>() {
+             @Override
+             public boolean hasNext() {
+                 return next != null;
+diff -r 508eed203915 jdk.compiler/share/classes/com/sun/source/util/TreePath.java
+--- a/jdk.compiler/share/classes/com/sun/source/util/TreePath.java	Thu Nov 19 15:06:28 2020 +0100
++++ b/jdk.compiler/share/classes/com/sun/source/util/TreePath.java	Thu Nov 19 15:32:41 2020 +0100
+@@ -143,7 +143,7 @@
+      */
+     @Override
+     public Iterator<Tree> iterator() {
+-        return new Iterator<>() {
++        return new Iterator<Tree>() {
+             @Override
+             public boolean hasNext() {
+                 return next != null;
+diff -r 508eed203915 jdk.compiler/share/classes/com/sun/tools/doclint/DocLint.java
+--- a/jdk.compiler/share/classes/com/sun/tools/doclint/DocLint.java	Thu Nov 19 15:06:28 2020 +0100
++++ b/jdk.compiler/share/classes/com/sun/tools/doclint/DocLint.java	Thu Nov 19 15:32:41 2020 +0100
+@@ -53,7 +53,7 @@
+             docLintProvider = ServiceLoader.load(DocLint.class).stream()
+                     .filter(p_ -> p_.get().getName().equals("doclint"))
+                     .findFirst()
+-                    .orElse(new ServiceLoader.Provider<>() {
++                    .orElse(new ServiceLoader.Provider<DocLint>() {
+                         @Override
+                         public Class<? extends DocLint> type() {
+                             return NoDocLint.class;
+diff -r 508eed203915 jdk.compiler/share/classes/com/sun/tools/javac/code/Source.java
+--- a/jdk.compiler/share/classes/com/sun/tools/javac/code/Source.java	Thu Nov 19 15:06:28 2020 +0100
++++ b/jdk.compiler/share/classes/com/sun/tools/javac/code/Source.java	Thu Nov 19 15:32:41 2020 +0100
+@@ -158,22 +158,22 @@
+     }
+ 
+     public Target requiredTarget() {
+-        return switch(this) {
+-        case JDK16  -> Target.JDK1_16;
+-        case JDK15  -> Target.JDK1_15;
+-        case JDK14  -> Target.JDK1_14;
+-        case JDK13  -> Target.JDK1_13;
+-        case JDK12  -> Target.JDK1_12;
+-        case JDK11  -> Target.JDK1_11;
+-        case JDK10  -> Target.JDK1_10;
+-        case JDK9   -> Target.JDK1_9;
+-        case JDK8   -> Target.JDK1_8;
+-        case JDK7   -> Target.JDK1_7;
+-        case JDK6   -> Target.JDK1_6;
+-        case JDK5   -> Target.JDK1_5;
+-        case JDK1_4 -> Target.JDK1_4;
+-        default     -> Target.JDK1_1;
+-        };
++        switch(this) {
++        case JDK16: return Target.JDK1_16;
++        case JDK15: return Target.JDK1_15;
++        case JDK14: return Target.JDK1_14;
++        case JDK13: return Target.JDK1_13;
++        case JDK12: return Target.JDK1_12;
++        case JDK11: return Target.JDK1_11;
++        case JDK10: return Target.JDK1_10;
++        case JDK9 : return Target.JDK1_9;
++        case JDK8 : return Target.JDK1_8;
++        case JDK7 : return Target.JDK1_7;
++        case JDK6 : return Target.JDK1_6;
++        case JDK5 : return Target.JDK1_5;
++        case JDK1_4: return Target.JDK1_4;
++        default   : return Target.JDK1_1;
++        }
+     }
+ 
+     /**
+@@ -280,23 +280,23 @@
+     }
+ 
+     public static SourceVersion toSourceVersion(Source source) {
+-        return switch(source) {
+-        case JDK1_2 -> RELEASE_2;
+-        case JDK1_3 -> RELEASE_3;
+-        case JDK1_4 -> RELEASE_4;
+-        case JDK5   -> RELEASE_5;
+-        case JDK6   -> RELEASE_6;
+-        case JDK7   -> RELEASE_7;
+-        case JDK8   -> RELEASE_8;
+-        case JDK9   -> RELEASE_9;
+-        case JDK10  -> RELEASE_10;
+-        case JDK11  -> RELEASE_11;
+-        case JDK12  -> RELEASE_12;
+-        case JDK13  -> RELEASE_13;
+-        case JDK14  -> RELEASE_14;
+-        case JDK15  -> RELEASE_15;
+-        case JDK16  -> RELEASE_16;
+-        default     -> null;
+-        };
++        switch(source) {
++        case JDK1_2: return RELEASE_2;
++        case JDK1_3: return RELEASE_3;
++        case JDK1_4: return RELEASE_4;
++        case JDK5  : return RELEASE_5;
++        case JDK6  : return RELEASE_6;
++        case JDK7  : return RELEASE_7;
++        case JDK8  : return RELEASE_8;
++        case JDK9  : return RELEASE_9;
++        case JDK10 : return RELEASE_10;
++        case JDK11 : return RELEASE_11;
++        case JDK12 : return RELEASE_12;
++        case JDK13 : return RELEASE_13;
++        case JDK14 : return RELEASE_14;
++        case JDK15 : return RELEASE_15;
++        case JDK16 : return RELEASE_16;
++        default    : return null;
++        }
+     }
+ }
+diff -r 508eed203915 jdk.compiler/share/classes/com/sun/tools/javac/comp/Check.java
+--- a/jdk.compiler/share/classes/com/sun/tools/javac/comp/Check.java	Thu Nov 19 15:06:28 2020 +0100
++++ b/jdk.compiler/share/classes/com/sun/tools/javac/comp/Check.java	Thu Nov 19 15:32:41 2020 +0100
+@@ -3842,10 +3842,10 @@
+             Feature.MODULES.allowedInSource(source)) {
+             NestingKind nestingKind = c.getNestingKind();
+             switch (nestingKind) {
+-                case ANONYMOUS,
+-                     LOCAL -> {return;}
+-                case TOP_LEVEL -> {;} // No additional checks needed
+-                case MEMBER -> {
++                case ANONYMOUS:
++                case LOCAL: {return;}
++                case TOP_LEVEL: {break;} // No additional checks needed
++                case MEMBER: {
+                     // For nested member classes, all the enclosing
+                     // classes must be public or protected.
+                     Symbol owner = c.owner;
+@@ -3854,6 +3854,7 @@
+                             return;
+                         owner = owner.owner;
+                     }
++                    break;
+                 }
+             }
+ 
+diff -r 508eed203915 jdk.compiler/share/classes/com/sun/tools/javac/comp/Flow.java
+--- a/jdk.compiler/share/classes/com/sun/tools/javac/comp/Flow.java	Thu Nov 19 15:06:28 2020 +0100
++++ b/jdk.compiler/share/classes/com/sun/tools/javac/comp/Flow.java	Thu Nov 19 15:32:41 2020 +0100
+@@ -1269,7 +1269,7 @@
+                         ctypes = ctypes.append(exc);
+                         if (types.isSameType(exc, syms.objectType))
+                             continue;
+-                        var pos = subClauses.size() > 1 ? ct.pos() : l.head.pos();
++                        DiagnosticPosition pos = subClauses.size() > 1 ? ct.pos() : l.head.pos();
+                         checkCaughtType(pos, exc, thrownInTry, caughtInTry);
+                         caughtInTry = chk.incl(exc, caughtInTry);
+                     }
+diff -r 508eed203915 jdk.compiler/share/classes/com/sun/tools/javac/parser/JavacParser.java
+--- a/jdk.compiler/share/classes/com/sun/tools/javac/parser/JavacParser.java	Thu Nov 19 15:06:28 2020 +0100
++++ b/jdk.compiler/share/classes/com/sun/tools/javac/parser/JavacParser.java	Thu Nov 19 15:32:41 2020 +0100
+@@ -4262,16 +4262,17 @@
+     }
+ 
+     private boolean allowedAfterSealedOrNonSealed(Token next, boolean local, boolean currentIsNonSealed) {
+-        return local ?
++        if (local)
+             switch (next.kind) {
+-                case MONKEYS_AT, ABSTRACT, FINAL, STRICTFP, CLASS, INTERFACE, ENUM -> true;
+-                default -> false;
+-            } :
++                case MONKEYS_AT: case ABSTRACT: case FINAL: case STRICTFP: case CLASS: case INTERFACE: case ENUM: return true;
++                default: return  false;
++            }
++        else
+             switch (next.kind) {
+-                case MONKEYS_AT, PUBLIC, PROTECTED, PRIVATE, ABSTRACT, STATIC, FINAL, STRICTFP, CLASS, INTERFACE, ENUM -> true;
+-                case IDENTIFIER -> isNonSealedIdentifier(next, currentIsNonSealed ? 3 : 1) || next.name() == names.sealed;
+-                default -> false;
+-            };
++                case MONKEYS_AT: case PUBLIC: case PROTECTED: case PRIVATE: case ABSTRACT: case STATIC: case FINAL: case STRICTFP: case CLASS: case INTERFACE: case ENUM: return true;
++                case IDENTIFIER: return isNonSealedIdentifier(next, currentIsNonSealed ? 3 : 1) || next.name() == names.sealed;
++                default: return false;
++            }
+     }
+ 
+     /** MethodDeclaratorRest =
+diff -r 508eed203915 jdk.compiler/share/classes/com/sun/tools/javac/processing/JavacRoundEnvironment.java
+--- a/jdk.compiler/share/classes/com/sun/tools/javac/processing/JavacRoundEnvironment.java	Thu Nov 19 15:06:28 2020 +0100
++++ b/jdk.compiler/share/classes/com/sun/tools/javac/processing/JavacRoundEnvironment.java	Thu Nov 19 15:32:41 2020 +0100
+@@ -124,7 +124,7 @@
+ 
+         Set<Element> result = Collections.emptySet();
+         @SuppressWarnings("preview")
+-        var scanner = new AnnotationSetScanner(result);
++        AnnotationSetScanner scanner = new AnnotationSetScanner(result);
+ 
+         for (Element element : rootElements)
+             result = scanner.scan(element, a);
+@@ -145,7 +145,7 @@
+ 
+         Set<Element> result = Collections.emptySet();
+         @SuppressWarnings("preview")
+-        var scanner = new AnnotationSetMultiScanner(result);
++        AnnotationSetMultiScanner scanner = new AnnotationSetMultiScanner(result);
+ 
+         for (Element element : rootElements)
+             result = scanner.scan(element, annotationSet);
