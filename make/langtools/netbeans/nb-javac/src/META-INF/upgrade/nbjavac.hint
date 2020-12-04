@@ -126,3 +126,30 @@ nbjavac.StringWrapper.isBlank($1)
 ;;
 
 jdk.internal.misc.VM => nbjavac.VMWrapper;;
+
+//TODO: workaround for the NetBeans' approach to javac loading using two different ClassLoaders:
+public static com.sun.source.util.JavacTask instance(javax.annotation.processing.ProcessingEnvironment processingEnvironment) {$whatever$;}
+=>
+public static com.sun.source.util.JavacTask instance(javax.annotation.processing.ProcessingEnvironment processingEnvironment) {
+    if (!processingEnvironment.getClass().getName().equals(
+            "com.sun.tools.javac.processing.JavacProcessingEnvironment"))
+        throw new IllegalArgumentException();
+
+    try {
+        //Cannot refer to the implementation directly, needs to use reflection:
+        java.lang.reflect.Method m = processingEnvironment.getClass().getMethod("getJavacTask");
+
+        return (JavacTask) m.invoke(processingEnvironment);
+    } catch (NoSuchMethodException ex) {
+        throw new UnsupportedOperationException(ex);
+    } catch (SecurityException ex) {
+        throw new UnsupportedOperationException(ex);
+    } catch (IllegalAccessException ex) {
+        throw new UnsupportedOperationException(ex);
+    } catch (IllegalArgumentException ex) {
+        throw new UnsupportedOperationException(ex);
+    } catch (java.lang.reflect.InvocationTargetException ex) {
+        throw new UnsupportedOperationException(ex);
+    }
+}
+;;
