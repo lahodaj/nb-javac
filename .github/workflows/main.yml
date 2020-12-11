@@ -20,4 +20,4 @@ jobs:
         with:
             java-version: 14
       - name: Do build
-        run: JAVA_HOME8=$JAVA_HOME_8_0_275_X64 bash build.sh
+        run: JAVA_HOME8=$JAVA_HOME_8_0_275_X64 JAVA_HOME14=$JAVA_HOME bash build.sh
