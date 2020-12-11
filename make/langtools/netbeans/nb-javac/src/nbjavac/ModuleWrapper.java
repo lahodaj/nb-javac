@@ -30,16 +30,16 @@ import java.util.Set;
 
 public class ModuleWrapper {
 
-    public static ModuleWrapper getModule(Class<?> annotation) {
+    public static ModuleWrapper getModule(Class<?> clazz) {
         return new ModuleWrapper();
     }
 
-    public static ModuleWrapper getUnnamedModule(ClassLoader processorClassLoader) {
+    public static ModuleWrapper getUnnamedModule(ClassLoader loader) {
         return new ModuleWrapper();
     }
 
     public String getName() {
-        return "";
+        return "jdk.compiler"; //XXX
     }
 
     public boolean isNamed() {

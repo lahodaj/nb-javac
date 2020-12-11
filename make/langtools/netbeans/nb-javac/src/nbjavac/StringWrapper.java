@@ -35,7 +35,7 @@ public class StringWrapper {
         String[] lines = str.split("\n");
         ToIntFunction<String> strIndent = s -> s.length() - s.replaceAll("^\\s*", "").length();
         int indent = Arrays.stream(lines)
-                           .filter(StringWrapper::isBlank)
+                           .filter(l -> !isBlank(l))
                            .mapToInt(strIndent)
                            .min()
                            .orElse(Integer.MAX_VALUE);
@@ -44,7 +44,7 @@ public class StringWrapper {
         }
         int indentFin = indent;
         return Arrays.stream(lines)
-                     .map(line -> line.substring(indentFin).replace("\\s+$", ""))
+                     .map(line -> line.substring(indentFin).replaceAll("\\s+$", ""))
                      .collect(Collectors.joining("\n"));
     }
 
@@ -100,6 +100,7 @@ public class StringWrapper {
                         }
                         ch = (char)code;
                         break;
+                    case '\n': continue;
                     default: {
                         String msg = String.format(
                             "Invalid escape sequence: \\%c \\\\u%04X",

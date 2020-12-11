@@ -1,7 +1,7 @@
 This is an early prototype of a way to compile JDK 16+ javac to run on JDK 8+, for the pruposes of NetBeans ("vanilla-nb-javac").
 
 Steps to compile vanilla-nb-javac:
-1. from JDK 16, ideally commit ae1eb286c6a2e76c3b38d68641208d4c01d4eef8, copy "src/java.compiler" and "src/jdk.compiler" into "src/java.compiler" and "src/jdk.compiler" in this project
+1. from JDK 16 (https://github.com/openjdk/jdk16), ideally commit 58dca9253d3ec7bc5745d5b814b33e1b4b8b08e8, copy "src/java.compiler" and "src/jdk.compiler" into "src/java.compiler" and "src/jdk.compiler" in this project
 2. from a JDK 16 build, copy:
 com/sun/tools/javac/resources/CompilerProperties.java
 into:

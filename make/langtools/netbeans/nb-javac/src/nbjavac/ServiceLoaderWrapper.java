@@ -38,15 +38,28 @@ public class ServiceLoaderWrapper<T> {
     }
 
     public static <T> ServiceLoader<T> load(ModuleWrapper.ModuleLayer layer, Class<T> aClass) {
+        ensureUses(aClass);
         return ServiceLoader.load(aClass); //XXX
     }
 
     public static <T> ServiceLoaderWrapper<T> load(Class<T> aClass) {
+        ensureUses(aClass);
         return new ServiceLoaderWrapper<T>(ServiceLoader.load(aClass));
     }
 
-    public static Iterable<PlatformProvider> load(Class<PlatformProvider> aClass, ClassLoader classLoader) {
+    public static <T> Iterable<T> load(Class<T> aClass, ClassLoader classLoader) {
+        ensureUses(aClass);
         return ServiceLoader.load(aClass, classLoader);
+    }
+
+    private static void ensureUses(Class<?> clazz) {
+        try {
+//            ServiceLoaderWrapper.class.getModule().addUses(aClass);
+            Class<?> thisClass = ServiceLoaderWrapper.class;
+            Class.forName("java.lang.Module").getDeclaredMethod("addUses", Class.class).invoke(Class.class.getDeclaredMethod("getModule").invoke(thisClass), clazz);
+        } catch (Throwable t) {
+            //ignore - might log?
+        }
     }
 
     public Stream<Provider<T>> stream() {
