@@ -39,28 +39,28 @@ public class ServiceLoaderWrapper<T> implements Iterable<T> {
         this.loader = loader;
     }
 
-    public static <T> ServiceLoader<T> load(ModuleWrapper.ModuleLayer layer, Class<T> aClass) {
-        ModuleWrapper.ensureUses(aClass);
-        return ServiceLoader.load(aClass); //XXX
+    public static <T> ServiceLoader<T> load(ModuleLayer layer, Class<T> aClass) {
+        ensureUses(aClass);
+        return ServiceLoader.load(layer, aClass);
     }
 
     public static <T> ServiceLoaderWrapper<T> load(Class<T> aClass) {
-        ModuleWrapper.ensureUses(aClass);
+        ensureUses(aClass);
         return new ServiceLoaderWrapper<T>(ServiceLoader.load(aClass));
     }
 
     public static <T> ServiceLoaderWrapper<T> load(Class<T> aClass, ClassLoader classLoader) {
-        ModuleWrapper.ensureUses(aClass);
+        ensureUses(aClass);
         return new ServiceLoaderWrapper<T>(ServiceLoader.load(aClass, classLoader));
     }
 
     public static <T> ServiceLoader<T> loadWithClassLoader(Class<T> aClass, ClassLoader classLoader) {
-        ModuleWrapper.ensureUses(aClass);
+        ensureUses(aClass);
         return ServiceLoader.load(aClass, classLoader);
     }
 
     public static <T> ServiceLoader<T> loadTool(Class<T> toolClass) {
-        ModuleWrapper.ensureUses(toolClass);
+        ensureUses(toolClass);
         ServiceLoader<T> res = ServiceLoader.load(toolClass, ToolProvider.class.getClassLoader());
         if (res.iterator().hasNext()) {
             return res;
@@ -103,4 +103,13 @@ public class ServiceLoaderWrapper<T> implements Iterable<T> {
         public T get();
     }
 
+    private static void ensureUses(Class<?> clazz) {
+        // ServiceLoaderWrapper.class.getModule().addUses(aClass);
+        Class<?> thisClass = ServiceLoaderWrapper.class;
+        ensureUses(thisClass, clazz);
+    }
+
+    private static void ensureUses(Class<?> thisClass, Class<?> clazz) {
+        thisClass.getModule().addUses(clazz);
+    }
 }
