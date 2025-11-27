@@ -27,6 +27,7 @@ java.util.Set.of($args$) => java.util.Collections.unmodifiableSet(new java.util.
 java.util.List.of($args$) => java.util.Collections.unmodifiableList(java.util.Arrays.asList($args$));;
 java.util.List.copyOf($list) => java.util.Collections.unmodifiableList(new java.util.ArrayList<>($list));;
 java.util.Map.of($k, $v) => java.util.Collections.unmodifiableMap(java.util.Collections.singletonMap($k, $v));;
+java.util.Map.of($k1, $v1, $k2, $v2) => nbjavac.CollectionsWrapper.toMap($k1, $v1, $k2, $v2);;
 
 //XXX: incorrect!
 java.lang.Runtime.version().feature() =>
@@ -255,6 +256,11 @@ java.nio.file.FileSystems.newFileSystem($path, $env, $classloader) :: $path inst
 nbjavac.FileSystemsWrapper.newFileSystem($path, $env, $classloader)
 ;;
 
+java.nio.file.FileSystems.newFileSystem($path, $env) :: $path instanceof java.nio.file.Path && $env instanceof java.util.Map
+=>
+nbjavac.FileSystemsWrapper.newFileSystem($path, $env)
+;;
+
 /*
 String $v = Character.toString($ch); :: $ch instanceof char
 =>
@@ -397,6 +403,16 @@ $coll.toArray($expr) :: inClass("com.sun.tools.javac.util.Log") && containsAny($
 $coll.toArray(new com.sun.tools.javac.util.JCDiagnostic[0])
 ;;
 
+$coll.toArray($type[]::new) :: inClass("com.sun.tools.javac.comp.ExhaustivenessComputer")
+=>
+$coll.toArray(new $type[0])
+;;
+
+$coll.toArray($expr) :: inClass("com.sun.tools.javac.comp.ExhaustivenessComputer") && containsAny($expr, "new com.sun.tools.javac.code.Type[$s]")
+=>
+$coll.toArray(new com.sun.tools.javac.code.Type[0])
+;;
+    
 Iterable<String> $it;
 try {
     $any$;
@@ -430,8 +446,15 @@ $list.getLast() :: $list instanceof java.util.List
 $list.get($list.size() - 1)
 ;;
 
+$list.removeLast() :: $list instanceof java.util.List
+=>
+$list.remove($list.size() - 1)
+;;
+
 java.util.SequencedSet => java.util.LinkedHashSet;;
 $mods$ $type<$T> fvs = $init$; :: inClass("com.sun.tools.javac.comp.CaptureScanner")
 =>
 $mods$ java.util.LinkedHashSet<$T> fvs = $init$;
 ;;
+
+java.lang.runtime.ExactConversionsSupport => nbjavac.ExactConversionsSupport;;

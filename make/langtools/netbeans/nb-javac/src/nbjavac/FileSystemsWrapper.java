@@ -65,4 +65,8 @@ public class FileSystemsWrapper {
             return FileSystems.newFileSystem(path, loader);
         }
     }
+
+    public static FileSystem newFileSystem(Path path, Map<String,?> env) throws IOException {
+        return newFileSystem(path, env, null);
+    }
 }
