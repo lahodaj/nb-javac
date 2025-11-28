@@ -253,7 +253,7 @@
                     <arg value="-jar"/>
                     <arg value="${tools.dir}/compiler.jar"/>
                     <arg line="${javac.compilerargs}"/>
-                    <arg value="-g:lines"/>
+                    <arg value="-g"/>
                     <!--
                     <arg value="- -enable-preview"/>
                     -->
