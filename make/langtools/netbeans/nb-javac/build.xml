@@ -103,7 +103,7 @@
     <target name="-pre-init">
         <mkdir dir="build/lib"/>
         <mkdir dir="${tools.dir}"/>
-        <get dest="${tools.dir}/jackpot.jar" skipexisting="true" src="https://repository.apache.org/content/repositories/orgapachenetbeans-1162/org/apache/netbeans/modules/jackpot30/tool/28.0/tool-28.0.jar"/>
+        <get dest="${tools.dir}/jackpot.jar" skipexisting="true" src="https://repo1.maven.org/maven2/org/apache/netbeans/modules/jackpot30/tool/28.0/tool-28.0.jar"/>
         <get dest="${tools.dir}/compiler.jar" skipexisting="true" src="https://repo1.maven.org/maven2/org/frgaal/compiler/24.0.0/compiler-24.0.0.jar"></get>
         <get dest="${tools.dir}/nb-javac-jdk-21u.jar" skipexisting="true" src="https://repo1.maven.org/maven2/com/dukescript/nbjavac/nb-javac/jdk-21u/nb-javac-jdk-21u.jar"></get>
         <get dest="build/lib/junit-4.12.jar" skipexisting="true" src="https://repo1.maven.org/maven2/junit/junit/4.12/junit-4.12.jar"></get>
