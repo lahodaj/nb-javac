@@ -44,8 +44,10 @@ import java.nio.file.spi.FileSystemProvider;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -190,5 +192,12 @@ public class VMWrapper {
 
     public static <T> Stream<T> optional2Stream(Optional<T> opt) {
         return opt.isPresent()? Stream.of(opt.get()) : Stream.empty();
+    }
+
+    public static <K, V> Map<K, V> toMap(K k1, V v1, K k2, V v2) {
+        return Collections.unmodifiableMap(new HashMap<>() {{
+            put(k1, v1);
+            put(k2, v2);
+        }});
     }
 }

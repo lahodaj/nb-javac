@@ -106,15 +106,21 @@
         <get dest="${tools.dir}/jackpot.jar" skipexisting="true" src="https://repo1.maven.org/maven2/org/apache/netbeans/modules/jackpot30/tool/28.0/tool-28.0.jar"/>
         <get dest="${tools.dir}/compiler.jar" skipexisting="true" src="https://repo1.maven.org/maven2/org/frgaal/compiler/24.0.0/compiler-24.0.0.jar"></get>
         <get dest="${tools.dir}/nb-javac-jdk-21u.jar" skipexisting="true" src="https://repo1.maven.org/maven2/com/dukescript/nbjavac/nb-javac/jdk-21u/nb-javac-jdk-21u.jar"></get>
-        <get dest="build/lib/junit-4.12.jar" skipexisting="true" src="https://repo1.maven.org/maven2/junit/junit/4.12/junit-4.12.jar"></get>
-        <get dest="build/lib/hamcrest-core-1.3.jar" skipexisting="true" src="https://repo1.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar"></get>
+        <get dest="${tools.dir}/junit-4.12.jar" skipexisting="true" src="https://repo1.maven.org/maven2/junit/junit/4.12/junit-4.12.jar"></get>
+        <get dest="${tools.dir}/hamcrest-core-1.3.jar" skipexisting="true" src="https://repo1.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar"></get>
     </target>
 
     <target name="-post-init" depends="-checkout-jdk">
         <available file="../../../../../nbbuild/netbeans/java/modules/ext" type="dir" property="modules.ext.exists"/>
     </target>
 
-    <target name="propertiesparser" depends="jackpot" unless="test.only">
+    <target name="-check-generated-files">
+        <uptodate property="generated.files.up.to.date"
+                  srcfile="${src.dir}/jdk.compiler/share/classes/com/sun/tools/javac/code/Flags.java"
+                  targetfile="${src.dir}/jdk.compiler/share/classes/com/sun/tools/javac/code/FlagsEnum.java" />
+    </target>
+
+    <target name="generate-files" depends="jackpot,-check-generated-files" unless="generated.files.up.to.date">
         <mkdir dir="${root}/lib/propertiesparser"/>
         <javac destdir="${root}/lib/propertiesparser" source="25" target="25" release="25" debug="true" srcdir="${jdk.repo}/make/langtools/tools/">
             <include name="propertiesparser/**/*.java"/>
@@ -176,23 +182,6 @@
             </filterchain>
         </copy>
 
-        <!--XXX: workaround for missing imports, investigate: -->
-        <copy todir="${src.dir}" overwrite="true">
-            <fileset dir="${jdk.repo}/src/">
-                <selector>
-                    <and>
-                        <or>
-                            <filename name="jdk.compiler/share/classes/com/sun/tools/javac/platform/JDKPlatformProvider.java"/>
-                        </or>
-                        <containsregexp expression="particular *file *as *subject *to *the.*Classpath.*exception"/>
-                    </and>
-                </selector>
-            </fileset>
-            <filterchain>
-                 <replacestring from="package com.sun.tools.javac.platform;" to="package com.sun.tools.javac.platform; import nbjavac.*;"/>
-            </filterchain>
-        </copy>
-
         <java fork="true" failonerror="true" classpath="${tools.dir}/jackpot.jar" classname="org.netbeans.modules.jackpot30.cmdline.Main">
             <arg value="-hint-file"/>
             <arg value="${root}/make/langtools/netbeans/nb-javac/src/META-INF/upgrade/nbjavac.hint"/>
@@ -208,7 +197,7 @@
         <echo file="${src.dir}/jackpot-done">Jackpot done!</echo>
     </target>
 
-    <target name="-pre-compile" depends="propertiesparser,jackpot">
+    <target name="-pre-compile" depends="generate-files,jackpot">
         <mkdir dir="${tools.dir}/reflect/"/>
         <unzip src="${tools.dir}/nb-javac-jdk-21u.jar" dest="${tools.dir}/reflect/">
             <patternset>
@@ -332,6 +321,8 @@
         <exec executable="${javap.exe}" failonerror="true" outputproperty="javap.SourceVersion.old">
             <arg value="-bootclasspath"></arg>
             <arg value="ignore"></arg>
+            <arg value="--system"></arg>
+            <arg value="none"></arg>
             <arg value="-cp"></arg>
             <arg value="${dist.dir}/nb-javac-${nb-javac-ver}-api.jar"></arg>
             <arg value="javax.lang.model.SourceVersion"/>
@@ -339,18 +330,19 @@
         <exec executable="${javap.exe}" failonerror="true" outputproperty="javap.SourceVersion.new">
             <arg value="-bootclasspath"></arg>
             <arg value="ignore"></arg>
+            <arg value="--system"></arg>
+            <arg value="none"></arg>
             <arg value="--multi-release"></arg>
             <arg value="17"></arg>
             <arg value="-cp"></arg>
             <arg value="${dist.dir}/nb-javac-${nb-javac-ver}-api.jar"></arg>
             <arg value="javax.lang.model.SourceVersion"/>
         </exec>
-        <!--XXX: disabled, as new javap reports the new version - investigate(!!!!): -->
-<!--        <fail message="Patched version of SourceVersion should be different!">
+        <fail message="Patched version of SourceVersion should be different!">
             <condition>
                 <equals arg1="${javap.SourceVersion.old}" arg2="${javap.SourceVersion.new}"/>
             </condition>
-        </fail>-->
+        </fail>
         <fail message="Patched version of SourceVersion shall contain Runtime.Version: ${javap.SourceVersion.new}">
             <condition>
                 <not>

@@ -26,4 +26,4 @@ ant -d $ANT_ARGS_EXTRA -f make/langtools/netbeans/nb-javac clean jar test
 
 
 export JAVA_HOME=$JAVA_HOME8
-ant $ANT_ARGS_EXTRA -f make/langtools/netbeans/nb-javac -Dtest.only=true test
+ant $ANT_ARGS_EXTRA -f make/langtools/netbeans/nb-javac test

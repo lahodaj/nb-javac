@@ -27,7 +27,7 @@ java.util.Set.of($args$) => java.util.Collections.unmodifiableSet(new java.util.
 java.util.List.of($args$) => java.util.Collections.unmodifiableList(java.util.Arrays.asList($args$));;
 java.util.List.copyOf($list) => java.util.Collections.unmodifiableList(new java.util.ArrayList<>($list));;
 java.util.Map.of($k, $v) => java.util.Collections.unmodifiableMap(java.util.Collections.singletonMap($k, $v));;
-java.util.Map.of($k1, $v1, $k2, $v2) => nbjavac.CollectionsWrapper.toMap($k1, $v1, $k2, $v2);;
+java.util.Map.of($k1, $v1, $k2, $v2) => nbjavac.VMWrapper.toMap($k1, $v1, $k2, $v2);;
 
 //XXX: incorrect!
 java.lang.Runtime.version().feature() =>
@@ -256,7 +256,7 @@ java.nio.file.FileSystems.newFileSystem($path, $env, $classloader) :: $path inst
 nbjavac.FileSystemsWrapper.newFileSystem($path, $env, $classloader)
 ;;
 
-java.nio.file.FileSystems.newFileSystem($path, $env) :: $path instanceof java.nio.file.Path && $env instanceof java.util.Map
+java.nio.file.FileSystems.newFileSystem($path, $env) :: $path instanceof java.nio.file.Path && $env instanceof java.util.Map && !inClass("com.sun.tools.javac.platform.JDKPlatformProvider")
 =>
 nbjavac.FileSystemsWrapper.newFileSystem($path, $env)
 ;;
